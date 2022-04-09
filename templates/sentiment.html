@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>{{header}}</h1>
+    <h6><a href="/">Return to index page</a></h6>
+    <div id="chart" class="chart"></div>
+    <div>{{description}}</div>
+ <h1>HELLO WORLD!</h1>
+  <a href="index.html">TOPページ</a>
+  <div id ='plot' class ='plot'”> </div>  
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/analysis.js"></script>
+<script type="text/javascript">
+    var graphs = {{graphJSON | safe}};
+    Plotly.plot('chart',graphs,{});        
+</script>
+
+
+{% endblock %}
+
+//  <!doctype html>
+//  <html>
+//  <body style="font-family:arial, sans-serif">
+//      <h1>{{header}}</h1>
+//      <h6><a href="/">Return to index page</a></h6>
+//      <div id="chart" class="chart"></div>
+//      <div>{{description}}</div>
+//  </body>
+ 
+//  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+ <!-- <script type="text/javascript">
+     var graphs = {{graphJSON , safe}};
+     Plotly.plot('chart',graphs,{});        
+ </script> -->
+ <!-- </html> -->

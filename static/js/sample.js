@@ -79,6 +79,7 @@ function sendImage() {
         contentType: 'application/json',
         data: data
     })
+    // テキスト　感情回してdataで帰ってくる？
     // $.ajax({
     //     type: "POST",
     //     url: "https://gsfujimurasan.uc.r.appspot.com/",

@@ -1,10 +1,10 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}TOPページ{% endblock %}
+{% block title %}トップページ{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>ブログアプリケーション</h1>
-    <a href="/create" role="button">新規作成画面</a>
-    <a href="/analysis" role="button">分析画面</a>
+    <h1>書く知る</h1>
+    <a href="/create" role="button">書く</a>
+    <a href="/sentiment" role="button">知る</a>
     <a href="/logout" role="button">ログアウト</a>
     {% for post in posts %}
     <article>
@@ -13,8 +13,7 @@
       <h2>{{ post.emotion }}</h2>
       <!-- <a href="/{{post.id}}/update" role="button">編集</a>
       <a href="/{{post.id}}/delete" role="button">削除</a> -->
-      <p>作成日時：{{ post.created_at }}</p>
-      <p>{{ post.password }}</p>
+      <p>{{ post.created_at }}</p>
     </article>
     {% endfor %}
 </div>
