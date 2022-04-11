@@ -1,15 +1,15 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}トップページ{% endblock %}
+{% block title %}日記{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>書く知る</h1>
-    <a href="/create" role="button">書く</a>
-    <a href="/sentiment" role="button">知る</a>
-    <a href="/logout" role="button">ログアウト</a>
+    <h1>書いて？見らん？</h1>
+    <a href="/create" role="button">書いて？</a>
+    <a href="/sentiment" role="button">見らん？</a>
+    <a href="/logout" role="button">またね？</a>
     {% for post in posts %}
     <article>
       <h2><img src={{ post.data_img }} ></h2>
-      <h2>{{ post.text }}</h2>
+      <!-- <h2>{{ post.text }}</h2> -->
       <h2>{{ post.emotion }}</h2>
       <!-- <a href="/{{post.id}}/update" role="button">編集</a>
       <a href="/{{post.id}}/delete" role="button">削除</a> -->

@@ -11,4 +11,4 @@ automatic_scaling:
   min_pending_latency: automatic
   max_pending_latency: automatic
 
-entrypoint: gunicorn -b :$PORT app:app
+entrypoint: gunicorn -b :$PORT main:app

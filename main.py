@@ -38,7 +38,7 @@ from google.cloud import vision
 import io
 
 app = Flask(__name__)
-credentials_path = 'kaitemite-6661bf07da7c.json'
+credentials_path = 'kaitemiran-420eb8374753.json'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 # app.config['GOOGLE_APPLICATION_CREDENTIALS'] = 'sqlite:///blog.db'
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -53,7 +53,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_name):
-  query = f"select * from `kaitemite.user_table.user` where user_name = '{user_name}'"
+  query = f"select * from `kaitemiran.user_table.user` where user_name = '{user_name}'"
   result = client.query(query)
   df = result.to_dataframe()
   dict = df.to_dict()
@@ -62,15 +62,15 @@ def load_user(user_name):
 #トップページ　全データ取得
 @app.route('/', methods=['GET', 'POST'])
 def index():
+  print(session)
   if (session):
     if request.method== 'GET':
-
-      query = f"select * from `kaitemite.user_table.data` order by created_at desc "
+      query = f"select * from `kaitemiran.data_table.sentiment_data` where user_name = '{session['user']['user_name']['0']}'order by created_at desc"
       result = client.query(query)
       df = result.to_dataframe()
       dict = df.to_dict()
       data = dict
-
+      
       listOfDataImg = data['img_url'].values()
       listOfDataImg = list(listOfDataImg)
 
@@ -91,7 +91,7 @@ def index():
       # 数の分だけ出したいけど何回回せばいいん？？for文？
       # print(len(df))
       for index in range(len(df)):
-        posts.append({'data_img': listOfDataImg[index], 'text': listOfText[index], 'emotion': listOfEmotion[index], 'created_at': listOfCreatedAt[index], 'updated_at': listOfUpdatedAt[index]})
+        posts.append({'data_img': listOfDataImg[index], 'text': listOfText[index], 'sentiment': listOfEmotion[index], 'created_at': listOfCreatedAt[index], 'updated_at': listOfUpdatedAt[index]})
 
       return render_template('index.html', posts=posts)
     
@@ -105,14 +105,14 @@ def signup():
     user_name = str(request.form.get('user_name'))
     password = request.form.get('password')
 
-    query = f"select * from `kaitemite.user_table.user`"
+    query = f"select * from `kaitemiran.user_table.user`"
 
     result = client.query(query)
     df = result.to_dataframe()
     dict = df.to_dict()
     listOfValues = dict['user_name'].values()
     listOfValues = list(listOfValues)
-    dict['password'][5]
+    dict['password']
 
     for value in listOfValues:
       if value == user_name:
@@ -120,10 +120,10 @@ def signup():
 
     # ユーザー登録の時の'created_at': datetime.now
     # print(datetime.now(pytz.timezone('Asia/Tokyo')))
-    rows_to_insert = [{'user_name': user_name, 'password': password, 'created_at': datetime.datetime.now()}]
+    rows_to_insert = [{'user_name': user_name, 'password': password, 'created_at': datetime.datetime.now(), 'updated_at': datetime.datetime.now()}]
 
 
-    table = client.get_table('kaitemite.user_table.user')
+    table = client.get_table('kaitemiran.user_table.user')
     errors = client.insert_rows(table, rows_to_insert)
     if errors == []:
       print('Success!')
@@ -139,12 +139,12 @@ def login():
     password = request.form.get('password')
     user_name = str(request.form.get('user_name'))
 
-    query = f"select * from `kaitemite.user_table.user` where user_name = '{user_name}'"
+    query = f"select * from `kaitemiran.user_table.user` where user_name = '{user_name}'"
 
     result = client.query(query)
     df = result.to_dataframe()
     dict = df.to_dict()
-
+    
     if int(password) == dict['password'][0]:
       session.permanent = True
       session['user'] = dict
@@ -180,13 +180,14 @@ def create():
     svimg(r, filename)
     senti_res = sample_analyze_sentiment(ans)
 
-    tokyo = datetime.datetime.now() 
+    tokyo = datetime.datetime.now() + datetime.timedelta(hours=9) 
+    # user_id = 
     # print(pytz.timezone('Asia/Tokyo'))
-    print(tokyo)
+    # print(tokyo)
     # BQにデータを代入
-    rows_to_insert = [{'img_url': 'https://storage.cloud.google.com/kaitemite.appspot.com//image/kaitemite' + filename, 'text': ans, 'sentiment': senti_res, 'created_at': tokyo, 'updated_at': tokyo}]
+    rows_to_insert = [{'img_url': 'https://storage.cloud.google.com/kaitemiran.appspot.com//image/kaitemiran' + filename, 'text': ans, 'sentiment': senti_res, 'created_at': tokyo, 'updated_at': tokyo, 'user_name':session['user']['user_name']['0']}]
 
-    table = client.get_table('kaitemite.user_table.data')
+    table = client.get_table('kaitemiran.data_table.sentiment_data')
     errors = client.insert_rows(table, rows_to_insert)
 
     if errors == []:
@@ -208,11 +209,11 @@ def create():
      
 # GCSに画像保存する関数
 def svimg(image, filename): 
-    credentials = service_account.Credentials.from_service_account_file('kaitemite-6661bf07da7c.json')
-    project_id = "kaitemite"
+    credentials = service_account.Credentials.from_service_account_file('kaitemiran-420eb8374753.json')
+    project_id = "kaitemiran"
     gcs_client = gcs.Client(project_id, credentials=credentials)
-    bucket_name = "kaitemite.appspot.com"
-    gcs_path = "/image/kaitemite{}".format(filename)  # 自分でファイル名決めてOK →　BQにこのアドレス保存すべし
+    bucket_name = "kaitemiran.appspot.com"
+    gcs_path = "/image/kaitemiran{}".format(filename)  # 自分でファイル名決めてOK →　BQにこのアドレス保存すべし
     bucket = gcs_client.get_bucket(bucket_name)
     blob_gcs = bucket.blob(gcs_path)
     blob_gcs.upload_from_string(data=image, content_type="image/png")
@@ -221,7 +222,7 @@ def svimg(image, filename):
 def detect_text(content):
     """Detects text in the file."""
     
-    credentials = service_account.Credentials.from_service_account_file('kaitemite-6661bf07da7c.json')
+    credentials = service_account.Credentials.from_service_account_file('kaitemiran-420eb8374753.json')
     client = vision.ImageAnnotatorClient(credentials=credentials)
     image = vision.Image(content=content)
 
@@ -246,7 +247,7 @@ def sample_analyze_sentiment(text_content):
     Args:
       text_content The text content to analyze
     """
-    credentials = service_account.Credentials.from_service_account_file('kaitemite-6661bf07da7c.json')
+    credentials = service_account.Credentials.from_service_account_file('kaitemiran-420eb8374753.json')
     client = language_v1.LanguageServiceClient(credentials=credentials)
 
     # text_content = 'I am so happy and joyful.'
@@ -265,47 +266,30 @@ def sample_analyze_sentiment(text_content):
 
     response = client.analyze_sentiment(request = {'document': document, 'encoding_type': encoding_type})
     # Get overall sentiment of the input document
-    print()
     return response.document_sentiment.score
     
 @app.route('/sentiment')
 def plot():
+  if request.method== 'GET':
   
-  df = pd.DataFrame({
-    "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-    "Amount": [4, 1, 2, 2, 4, 5],
-    "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-  })
+    query = f"select * from `kaitemiran.data_table.sentiment_data` where user_name = '{session['user']['user_name']['0']}' order by created_at desc"
 
-  # dateidx = pd.date_range(start="2021-04-01", periods=365, freq='D' )
-  # val1 = np.random.randint(low=-1, high=1, size=365)
-  # df_timeseries_toyexample = pd.DataFrame({'date':dateidx, 'val1':val1,})
-  # df_timeseries_toyexample.head()
+    result = client.query(query)
+    df = result.to_dataframe()
+    dict = df.to_dict()
+    data = dict
 
-  fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="group")
-  # fig.show(plot)
+    # print(data)
+    fig = px.line(data, x="created_at", y="sentiment", width=1000, height=600, title='Chart')
+    # fig.show()
 
-  graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-  header="Fruit in North America"
-  description = """
-  A academic study of the number of apples, oranges and bananas in the cities of
-  San Francisco and Montreal would probably not come up with this chart.
-  """
-  return render_template('sentiment.html', graphJSON=graphJSON, header=header,description=description)
-
-
-
-  # plt.figure(figsize=(12,6))
-  # plt.plot(df_timeseries_toyexample['date'], df_timeseries_toyexample['val1'])
-  # plt.show()
-
-  # graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-  # header="Fruit in North America"
-  # description = """
-  # A academic study of the number of apples, oranges and bananas in the cities of
-  # San Francisco and Montreal would probably not come up with this chart.
-  # """
-  return render_template('login.html')
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    header="sentiment"
+    description = """    """
+    
+    return render_template('sentiment.html', graphJSON=graphJSON, header=header,description=description)
+  else:
+    return render_template('login.html')
 
 if __name__ == "__main__":
-      app.run()
+        app.run()

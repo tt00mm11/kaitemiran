@@ -2,7 +2,7 @@
 {% block content %}
 <div align="center">
   <h1><span id="text"></span></h1>
-  <a href="/" role="button">トップページ</a>
+  <a href="/" role="button">日記</a>
   <!-- <form action="/create" method="POST"> -->
       <div class="canvas" id="candiv"  style="border:1px solid rgb(200, 200, 200);">
           <canvas id="can" width="900px" height="600px"></canvas>
@@ -13,6 +13,7 @@
         保存</button>  
       <!-- </form> -->
       <button type="button" onClick="clearCan();" value="クリア" class="clear-button">消去</button>
+  <p>ネガティブ〜ポジティブ(-1~1)</p>
   <div id="answer"></div>
 </div>
   <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
