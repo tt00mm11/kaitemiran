@@ -102,7 +102,7 @@ def index():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
   if request.method == 'POST':
-    user_name = str(request.form.get('user_name'))
+    user_name = request.form.get('user_name')
     password = request.form.get('password')
 
     query = f"select * from `kaitemiran.user_table.user`"
@@ -137,7 +137,7 @@ def signup():
 def login():
   if request.method == 'POST':
     password = request.form.get('password')
-    user_name = str(request.form.get('user_name'))
+    user_name = request.form.get('user_name')
 
     query = f"select * from `kaitemiran.user_table.user` where user_name = '{user_name}'"
 
@@ -145,7 +145,7 @@ def login():
     df = result.to_dataframe()
     dict = df.to_dict()
     
-    if int(password) == dict['password'][0]:
+    if password == dict['password'][0]:
       session.permanent = True
       session['user'] = dict
       return redirect('/')
